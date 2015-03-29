@@ -29,7 +29,13 @@ function run(command, _args) {
   });
 }
 
-run('./node_modules/.bin/testem', [ 'ci' ])
+RSVP.resolve()
+  .then(function() {
+    return run('./node_modules/.bin/ember', [ 'start-sauce-connect' ]);
+  })
+  .then(function() {
+    return run('./node_modules/.bin/testem', [ 'ci' ]);
+  })
   .catch(function(error) {
     console.error(error);
   });

@@ -16,9 +16,6 @@ install:
 after_success:
   - "./bin/publish_builds"
 
-before_script:
-    - ember start-sauce-connect
-
 script:
   - npm test
 
