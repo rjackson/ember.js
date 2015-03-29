@@ -23,8 +23,12 @@ function run(command, _args) {
       reject(err);
     });
 
-    child.on('exit', function() {
-      resolve();
+    child.on('exit', function(code) {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(code);
+      }
     });
   });
 }

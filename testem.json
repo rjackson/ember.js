@@ -2,7 +2,7 @@
   "framework": "qunit",
   "test_page": "dist/tests/index.html?hidepassed",
   "timeout": 540,
-  "parallel": 2,
+  "parallel": 5,
   "launchers":
     {
       "SL_Chrome_Current": {
