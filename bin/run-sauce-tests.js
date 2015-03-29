@@ -38,8 +38,9 @@ RSVP.resolve()
     return run('./node_modules/.bin/ember', [ 'start-sauce-connect' ]);
   })
   .then(function() {
-    return run('./node_modules/.bin/testem', [ 'ci' ]);
+    return run('./node_modules/.bin/ember', [ 'test' ]);
   })
   .catch(function(error) {
     console.error(error);
+    process.exit(1);
   });
