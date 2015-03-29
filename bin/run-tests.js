@@ -140,7 +140,7 @@ switch (process.env.TEST_SUITE) {
     return;
   case 'sauce':
     require('./run-sauce-tests');
-    break;
+    return;
   default:
     generateEachPackageTests();
 }
