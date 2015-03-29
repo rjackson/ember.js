@@ -50,3 +50,4 @@ env:
     - TEST_SUITE=old-jquery
     - TEST_SUITE=extend-prototypes
     - TEST_SUITE=node EMBER_ENV=production
+    - TEST_SUITE=sauce
