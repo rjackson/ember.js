@@ -38,7 +38,7 @@ RSVP.resolve()
     return run('./node_modules/.bin/ember', [ 'start-sauce-connect' ]);
   })
   .then(function() {
-    return run('./node_modules/.bin/testem', [ 'ci', '--debug' ]);
+    return run('./node_modules/.bin/testem', [ 'ci', '--debug', '--bail_on_uncaught_error' ]);
   })
   .catch(function(error) {
     var fs = require('fs');
