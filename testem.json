@@ -7,7 +7,8 @@
     {
       "SL_Chrome_Current": {
         "command": "./node_modules/.bin/saucie -tg ember -b chrome -v 39 --no-ct -u <url>",
-        "protocol": "tap"
+        "protocol": "tap",
+        "hide_stdout": false
       },
       "SL_Firefox_Current": {
         "command": "./node_modules/.bin/saucie -tg ember -b firefox -v 34 --no-ct -u <url>",
