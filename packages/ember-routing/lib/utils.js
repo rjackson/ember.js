@@ -1,6 +1,18 @@
 import assign from 'ember-metal/assign';
 import { get } from 'ember-metal/property_get';
 
+export function extractQueryParams(array) {
+  let models = array.slice(0, -1);
+  let options = array.slice(-1);
+
+  if (options && options.hasOwnProperty('queryParams')) {
+    let queryParams = options.queryParams;
+    return [models, queryParams];
+  } else {
+    return [array, null];
+  }
+}
+
 export function routeArgs(targetRouteName, models, queryParams) {
   var args = [];
   if (typeof targetRouteName === 'string') {

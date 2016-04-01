@@ -16,7 +16,8 @@ import {
   routeArgs,
   getActiveTargetName,
   stashParamNames,
-  calculateCacheKey
+  calculateCacheKey,
+  extractQueryParams
 } from 'ember-routing/utils';
 import { guidFor } from 'ember-metal/utils';
 import RouterState from './router_state';
@@ -373,6 +374,12 @@ var EmberRouter = EmberObject.extend(Evented, {
   isActive(routeName) {
     var router = this.router;
     return router.isActive(...arguments);
+  },
+
+  isActiveTarget(routeName, ...args) {
+    let [ models, queryParams ] = extractQueryParams(args);
+
+    return this.targetState && this.targetState.isActiveIntent(routeName, models, queryParams);
   },
 
   /**

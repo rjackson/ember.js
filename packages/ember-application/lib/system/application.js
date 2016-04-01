@@ -1099,7 +1099,7 @@ function commonSetupRegistry(registry) {
   registry.register('component:-checkbox', Checkbox);
   registry.register('component:link-to', LinkToComponent);
 
-  // Register the routing service...
+  // Register the deprecated routing service...
   registry.register('service:-routing', RoutingService);
   // Then inject the app router into it
   registry.injection('service:-routing', 'router', 'router:main');

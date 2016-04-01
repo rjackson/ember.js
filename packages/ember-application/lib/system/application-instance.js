@@ -15,6 +15,7 @@ import environment from 'ember-metal/environment';
 import RSVP from 'ember-runtime/ext/rsvp';
 import jQuery from 'ember-views/system/jquery';
 import EngineInstance from './engine-instance';
+import isEnabled from 'ember-metal/features';
 
 export const INTERNAL_BOOT_OPTIONS = symbol('INTERNAL_BOOT_OPTIONS');
 
@@ -151,8 +152,12 @@ const ApplicationInstance = EngineInstance.extend({
       this.rootElement = this.application.rootElement;
     }
 
+    let router = get(this, 'router');
+    if (isEnabled('ember-routing-router-service')) {
+      registry.register('service:router', router, { instantiate: false });
+    }
+
     if (options.location) {
-      let router = get(this, 'router');
       set(router, 'location', options.location);
     }
 
