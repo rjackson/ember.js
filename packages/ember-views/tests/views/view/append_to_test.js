@@ -91,7 +91,11 @@ QUnit.test('raises an assert when a target does not exist in the DOM', function(
 QUnit.test('remove removes an element from the DOM', function() {
   willDestroyCalled = 0;
 
+  let _viewRegistry = { };
+
   view = View.create({
+    _viewRegistry,
+
     willDestroyElement() {
       willDestroyCalled++;
     }
@@ -106,7 +110,7 @@ QUnit.test('remove removes an element from the DOM', function() {
   run(() => view.destroyElement());
 
   ok(jQuery('#' + get(view, 'elementId')).length === 0, 'remove removes an element from the DOM');
-  ok(EmberView.views[get(view, 'elementId')] === undefined, 'remove does not remove the view from the view hash');
+  ok(_viewRegistry[get(view, 'elementId')] === undefined, 'remove does not remove the view from the view hash');
   ok(!get(view, 'element'), 'remove nulls out the element');
   equal(willDestroyCalled, 1, 'the willDestroyElement hook was called once');
 });
@@ -114,7 +118,11 @@ QUnit.test('remove removes an element from the DOM', function() {
 QUnit.test('destroy more forcibly removes the view', function() {
   willDestroyCalled = 0;
 
+  let _viewRegistry = { };
+
   view = View.create({
+    _viewRegistry,
+
     willDestroyElement() {
       willDestroyCalled++;
     }
@@ -129,7 +137,7 @@ QUnit.test('destroy more forcibly removes the view', function() {
   run(() => view.destroy());
 
   ok(jQuery('#' + get(view, 'elementId')).length === 0, 'destroy removes an element from the DOM');
-  ok(EmberView.views[get(view, 'elementId')] === undefined, 'destroy removes a view from the global views hash');
+  ok(_viewRegistry[get(view, 'elementId')] === undefined, 'destroy removes a view from the global views hash');
   equal(get(view, 'isDestroyed'), true, 'the view is marked as destroyed');
   ok(!get(view, 'element'), 'the view no longer has an element');
   equal(willDestroyCalled, 1, 'the willDestroyElement hook was called once');

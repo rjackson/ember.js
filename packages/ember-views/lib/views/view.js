@@ -9,6 +9,7 @@ import AriaRoleSupport from 'ember-views/mixins/aria_role_support';
 import VisibilitySupport from 'ember-views/mixins/visibility_support';
 import CompatAttrsProxy from 'ember-views/compat/attrs-proxy';
 import ViewMixin from 'ember-views/mixins/view_support';
+import fallbackViewRegistry from 'ember-views/compat/fallback-view-registry';
 /**
 @module ember
 @submodule ember-views
@@ -519,7 +520,7 @@ var View = CoreView.extend(
       this._super(...arguments);
 
       if (!this._viewRegistry) {
-        this._viewRegistry = View.views;
+        this._viewRegistry = fallbackViewRegistry;
       }
     },
 
@@ -567,18 +568,6 @@ var View = CoreView.extend(
 
 // once the view has been inserted into the DOM, legal manipulations
 // are done on the DOM element.
-
-View.reopenClass({
-  /**
-    Global views hash
-
-    @property views
-    @static
-    @type Object
-    @private
-  */
-  views: {}
-});
 
 export default View;
 

@@ -7,7 +7,6 @@ import AriaRoleSupport from 'ember-views/mixins/aria_role_support';
 import ViewMixin from 'ember-views/mixins/view_support';
 import ActionSupport from 'ember-views/mixins/action_support';
 import TargetActionSupport from 'ember-runtime/mixins/target_action_support';
-import EmberView from 'ember-views/views/view';
 import symbol from 'ember-metal/symbol';
 import EmptyObject from 'ember-metal/empty_object';
 import { get } from 'ember-metal/property_get';
@@ -25,6 +24,7 @@ import { DirtyableTag } from 'glimmer-reference';
 import { assert, deprecate } from 'ember-metal/debug';
 import { NAME_KEY } from 'ember-metal/mixin';
 import { getOwner } from 'container/owner';
+import fallbackViewRegistry from 'ember-views/compat/fallback-view-registry';
 
 export const DIRTY_TAG = symbol('DIRTY_TAG');
 export const ARGS = symbol('ARGS');
@@ -48,7 +48,7 @@ const Component = CoreView.extend(
 
     init() {
       this._super(...arguments);
-      this._viewRegistry = this._viewRegistry || EmberView.views;
+      this._viewRegistry = this._viewRegistry || fallbackViewRegistry;
       this[DIRTY_TAG] = new DirtyableTag();
       this[ROOT_REF] = null;
       this[REFS] = new EmptyObject();
