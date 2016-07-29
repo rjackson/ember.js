@@ -3,6 +3,7 @@ import run from 'ember-metal/run_loop';
 import { guidFor } from 'ember-metal/utils';
 import { Mixin } from 'ember-metal/mixin';
 import { POST_INIT } from 'ember-runtime/system/core_object';
+import { environment } from 'ember-environment';
 import symbol from 'ember-metal/symbol';
 
 const INIT_WAS_CALLED = symbol('INIT_WAS_CALLED');
@@ -129,23 +130,20 @@ export default Mixin.create({
     @private
   */
   appendTo(selector) {
-    let $ = this._environment ? this._environment.options.jQuery : jQuery;
+    let target;
+    if (environment.hasDOM) {
+      target = document.querySelector(selector);
 
-    if ($) {
-      let target = $(selector);
-
-      assert('You tried to append to (' + selector + ') but that isn\'t in the DOM', target.length > 0);
-      assert('You cannot append to an existing Ember.View.', !target.is('.ember-view') && !target.parents().is('.ember-view'));
-
-      this.renderer.appendTo(this, target[0]);
+      assert('You tried to append to (' + selector + ') but that isn\'t in the DOM', target);
+      //assert('You cannot append to an existing Ember.View.', !target.is('.ember-view') && !target.parents().is('.ember-view'));
     } else {
-      let target = selector;
+      target = selector;
 
       assert('You tried to append to a selector string (' + selector + ') in an environment without jQuery', typeof target !== 'string');
       assert('You tried to append to a non-Element (' + selector + ') in an environment without jQuery', typeof selector.appendChild === 'function');
-
-      this.renderer.appendTo(this, target);
     }
+
+    this.renderer.appendTo(this, target);
 
     return this;
   },

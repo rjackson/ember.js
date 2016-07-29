@@ -27,7 +27,11 @@ export default EmberObject.extend({
 
   init() {
     set(this, 'location', get(this, 'location') || window.location);
-    set(this, 'baseURL', jQuery('base').attr('href') || '');
+
+    let base = document.querySelector('base');
+    let baseURL = base ? base.getAttribute('href') : '';
+
+    set(this, 'baseURL', baseURL);
   },
 
   /**
@@ -181,16 +185,16 @@ export default EmberObject.extend({
     @param callback {Function}
   */
   onUpdateURL(callback) {
-    let guid = guidFor(this);
-
-    jQuery(window).on(`popstate.ember-location-${guid}`, (e) => {
+    this._popstateHandler = (e) => {
       // Ignore initial page load popstate event in Chrome
       if (!popstateFired) {
         popstateFired = true;
         if (this.getURL() === this._previousURL) { return; }
       }
       callback(this.getURL());
-    });
+    };
+
+    window.addEventListener('popstate', this._popstateHandler);
   },
 
   /**
@@ -225,9 +229,7 @@ export default EmberObject.extend({
     @method willDestroy
   */
   willDestroy() {
-    let guid = guidFor(this);
-
-    jQuery(window).off(`popstate.ember-location-${guid}`);
+    window.removeEventListener('popstate', this._popstateHandler);
   },
 
   /**

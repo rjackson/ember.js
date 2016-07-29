@@ -105,6 +105,7 @@ export const context = {
 // TODO: cleanup single source of truth issues with this stuff
 export const environment = hasDOM ? {
   hasDOM: true,
+  hasJQuery: !!context.imports.jQuery,
   isChrome: !!window.chrome && !window.opera,
   isFirefox: typeof InstallTrigger !== 'undefined',
   isPhantom: !!window.callPhantom,
@@ -114,6 +115,7 @@ export const environment = hasDOM ? {
   window: window
 } : {
   hasDOM: false,
+  hasJQuery: false,
   isChrome: false,
   isFirefox: false,
   isPhantom: false,

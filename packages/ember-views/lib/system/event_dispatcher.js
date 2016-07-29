@@ -15,9 +15,18 @@ import assign from 'ember-metal/assign';
 import { getOwner } from 'container/owner';
 import { environment } from 'ember-environment';
 import fallbackViewRegistry from 'ember-views/compat/fallback-view-registry';
+import EmptyObject from 'ember-metal/empty_object';
 
 const ROOT_ELEMENT_CLASS = 'ember-application';
 const ROOT_ELEMENT_SELECTOR = '.' + ROOT_ELEMENT_CLASS;
+
+function findElement(selector) {
+  if (environment.hasJQuery) {
+    return jQuery(selector)[0];
+  }
+
+  return document.querySelector(selector);
+}
 
 /**
   `Ember.EventDispatcher` handles delegating browser events to their
@@ -140,6 +149,7 @@ export default EmberObject.extend({
   init() {
     this._super();
     assert('EventDispatcher should never be instantiated in fastboot mode. Please report this as an Ember bug.', environment.hasDOM);
+    this._eventHandlers = new EmptyObject();
   },
 
   /**
@@ -162,17 +172,17 @@ export default EmberObject.extend({
       set(this, 'rootElement', rootElement);
     }
 
-    rootElement = jQuery(get(this, 'rootElement'));
+    rootElement = findElement(get(this, 'rootElement'));
 
-    assert(`You cannot use the same root element (${rootElement.selector || rootElement[0].tagName}) multiple times in an Ember.Application`, !rootElement.is(ROOT_ELEMENT_SELECTOR));
-    assert('You cannot make a new Ember.Application using a root element that is a descendent of an existing Ember.Application', !rootElement.closest(ROOT_ELEMENT_SELECTOR).length);
-    assert('You cannot make a new Ember.Application using a root element that is an ancestor of an existing Ember.Application', !rootElement.find(ROOT_ELEMENT_SELECTOR).length);
+    //assert(`You cannot use the same root element (${rootElement.selector || rootElement[0].tagName}) multiple times in an Ember.Application`, !rootElement.is(ROOT_ELEMENT_SELECTOR));
+    //assert('You cannot make a new Ember.Application using a root element that is a descendent of an existing Ember.Application', !rootElement.closest(ROOT_ELEMENT_SELECTOR).length);
+    //assert('You cannot make a new Ember.Application using a root element that is an ancestor of an existing Ember.Application', !rootElement.find(ROOT_ELEMENT_SELECTOR).length);
 
-    rootElement.addClass(ROOT_ELEMENT_CLASS);
+    rootElement.className += ' ' + ROOT_ELEMENT_SELECTOR;
 
-    if (!rootElement.is(ROOT_ELEMENT_SELECTOR)) {
-      throw new TypeError(`Unable to add '${ROOT_ELEMENT_CLASS}' class to root element (${rootElement.selector || rootElement[0].tagName}). Make sure you set rootElement to the body or an element in the body.`);
-    }
+    //if (!rootElement.is(ROOT_ELEMENT_SELECTOR)) {
+    //  throw new TypeError(`Unable to add '${ROOT_ELEMENT_CLASS}' class to root element (${rootElement.selector || rootElement[0].tagName}). Make sure you set rootElement to the body or an element in the body.`);
+    //}
 
     for (event in events) {
       if (events.hasOwnProperty(event)) {
@@ -205,23 +215,23 @@ export default EmberObject.extend({
       return;
     }
 
-    rootElement.on(event + '.ember', '.ember-view', function(evt, triggeringManager) {
-      let view = viewRegistry[this.id];
+    let viewHandler = (event, triggeringManager) => {
+      let view = viewRegistry[event.target.id];
       let result = true;
 
-      let manager = self.canDispatchToEventManager ? self._findNearestEventManager(view, eventName) : null;
+      let manager = this.canDispatchToEventManager ? this._findNearestEventManager(view, eventName) : null;
 
       if (manager && manager !== triggeringManager) {
-        result = self._dispatchEvent(manager, evt, eventName, view);
+        result = this._dispatchEvent(manager, event, eventName, view);
       } else if (view) {
-        result = self._bubbleEvent(view, evt, eventName);
+        result = this._bubbleEvent(view, event, eventName);
       }
 
       return result;
-    });
+    };
 
-    rootElement.on(event + '.ember', '[data-ember-action]', function(evt) {
-      let actionId = jQuery(evt.currentTarget).attr('data-ember-action');
+    let actionHandler = (event) => {
+      let actionId = event.target.getAttribute('data-ember-action');
       let actions = ActionManager.registeredActions[actionId];
 
       // In Glimmer2 this attribute is set to an empty string and an additional
@@ -229,7 +239,7 @@ export default EmberObject.extend({
       // attributes need to be read so that a proper set of action handlers can
       // be coalesced.
       if (actionId === '') {
-        let attributes = evt.currentTarget.attributes;
+        let attributes = event.target.attributes;
         let attributeCount = attributes.length;
 
         actions = [];
@@ -255,10 +265,22 @@ export default EmberObject.extend({
         let action = actions[index];
 
         if (action && action.eventName === eventName) {
-          return action.handler(evt);
+          return action.handler(event);
         }
       }
-    });
+    };
+
+    let handleEvent = this._eventHandlers[event] = (event) => {
+      let target = event.target;
+      debugger
+      if (viewRegistry[target.id]) {
+        return viewHandler(event);
+      } else if (target.hasAttribute('data-ember-action')) {
+        return actionHandler(event);
+      }
+    };
+
+    rootElement.addEventListener(event, handleEvent);
   },
 
   _findNearestEventManager(view, eventName) {
@@ -295,7 +317,18 @@ export default EmberObject.extend({
 
   destroy() {
     let rootElement = get(this, 'rootElement');
-    jQuery(rootElement).off('.ember', '**').removeClass(ROOT_ELEMENT_CLASS);
+    rootElement = findElement(rootElement);
+
+    for (let event in this._eventHandlers) {
+      rootElement.removeEventListener(event, this._eventHandlers[event]);
+    }
+
+    if (rootElement.classList) {
+      rootElement.classList.remove(ROOT_ELEMENT_CLASS);
+    } else {
+      rootElement.className = rootElement.className.replace(new RegExp('(^|\\b)' + ROOT_ELEMENT_CLASS.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+    }
+
     return this._super(...arguments);
   },
 
