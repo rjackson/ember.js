@@ -322,7 +322,14 @@ Ember.isEmpty = isEmpty;
 Ember.isBlank = isBlank;
 Ember.isPresent = isPresent;
 
-Ember.assign = Object.assign || assign;
+if (Object.assign) {
+  // make this small shim so that Object.assign is
+  // still bound properly to `Object`
+  Ember.assign = function() { return Object.assign(...arguments); };
+} else {
+  Ember.assign = assign;
+}
+
 Ember.merge = merge;
 
 Ember.FEATURES = FEATURES;
