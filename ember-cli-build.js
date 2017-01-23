@@ -398,7 +398,7 @@ module.exports = function(options) {
       development: babelConfigFor('development'),
       production: babelConfigFor('production')
     },
-    eslintRulePaths: [__dirname + '/lib/eslint-rules'],
+    eslintRulePaths: [],
     features: {
       development: getFeatures('development'),
       production: getFeatures('production')
