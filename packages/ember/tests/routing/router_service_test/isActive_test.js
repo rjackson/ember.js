@@ -47,7 +47,7 @@ if (isFeatureEnabled('ember-routing-router-service')) {
         });
     }
 
-    ['@test RouterService#urlFor returns URL for simple route with basic query params'](assert) {
+    ['@test RouterService#urlFor returns URL for simple route with basic query params with controller with from default qps to non-default qps'](assert) {
       assert.expect(1);
 
       let queryParams = this.buildQueryParams({ sort: 'ASC' });
@@ -57,7 +57,7 @@ if (isFeatureEnabled('ember-routing-router-service')) {
           sort: 'ASC'
         })
       );
-      debugger;
+
       return this.visit('/')
         .then(() => {
           return this.routerService.transitionTo('parent.child', queryParams);
@@ -65,6 +65,43 @@ if (isFeatureEnabled('ember-routing-router-service')) {
         .then(() => {
           assert.ok(this.routerService.isActive('parent.child', queryParams));
           assert.notOk(this.routerService.isActive('parent.child', this.buildQueryParams({ sort: 'DESC' })));
+        });
+    }
+
+    ['@test RouterService#urlFor returns URL for simple route with basic query params without controller specified'](assert) {
+      assert.expect(1);
+
+      let queryParams = this.buildQueryParams({ sort: 'ASC' });
+
+      return this.visit('/')
+        .then(() => {
+          return this.routerService.transitionTo('parent.child', queryParams);
+        })
+        .then(() => {
+          assert.ok(this.routerService.isActive('parent.child', queryParams));
+          assert.notOk(this.routerService.isActive('parent.child', this.buildQueryParams({ sort: 'DESC' })));
+        });
+    }
+
+    ['@test RouterService#urlFor returns URL for simple route with basic query params after transitioning to non-default wtf'](assert) {
+      assert.expect(2);
+
+      let queryParamsASC = this.buildQueryParams({ sort: 'ASC' });
+      let queryParamsDESC = this.buildQueryParams({ sort: 'DESC' });
+
+      this.registerController('parent.child', Controller.extend({
+        queryParams: ['sort'],
+        sort: 'ASC'
+      })
+                             );
+      debugger;
+      return this.visit('/')
+        .then(() => {
+          return this.routerService.transitionTo('parent.child', queryParamsDESC);
+        })
+        .then(() => {
+          assert.ok(this.routerService.isActive('parent.child', queryParamsDESC));
+          assert.notOk(this.routerService.isActive('parent.child', queryParamsASC));
         });
     }
 
